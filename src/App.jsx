@@ -618,6 +618,8 @@ export default function OverlayTuner() {
     gridTemplateColumns: "minmax(0, 1fr) 420px",
     gap: 14,
     alignItems: "start",
+    flex: 1,
+    minHeight: 0,
   };
 
   const btn = {

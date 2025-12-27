@@ -185,13 +185,14 @@ function InfoDot({ text }) {
           border: "1px solid #d4d4d8",
           borderRadius: 10,
           padding: "8px 10px",
-          minWidth: 220,
-          maxWidth: 280,
+          minWidth: 160,
+          maxWidth: 240,
           fontSize: 12,
-          lineHeight: 1.25,
+          lineHeight: 1.35,
           boxShadow: "0 12px 30px rgba(0,0,0,0.45)",
-          zIndex: 5,
+          zIndex: 99999,
           whiteSpace: "normal",
+          pointerEvents: "none",
         }}
       >
         {text}

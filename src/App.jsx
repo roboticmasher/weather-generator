@@ -828,7 +828,7 @@ export default function OverlayTuner() {
             </div>
           </div>
 
-          <div style={card}>
+          <div style={{ ...card, height: "100%", overflowY: "auto" }}>
             <div style={{ ...pad, display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>

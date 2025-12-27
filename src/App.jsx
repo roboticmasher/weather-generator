@@ -585,7 +585,9 @@ export default function OverlayTuner() {
     color: "#f3f4f6",
     margin: 0,
     padding: 0,
-    overflow: "hidden",
+    overflowY: "auto",
+    overflowX: "hidden",
+    WebkitOverflowScrolling: "touch",
   };
 
 

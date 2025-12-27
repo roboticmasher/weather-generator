@@ -189,15 +189,18 @@ function InfoDot({ text }) {
           maxWidth: 280,
           fontSize: 12,
           lineHeight: 1.25,
-          boxShadow: "0 12px 30px rgba(0,0,0,.45)",
-          display: "none",
+          boxShadow: "0 12px 30px rgba(0,0,0,0.45)",
           zIndex: 5,
           whiteSpace: "normal",
         }}
       >
         {text}
       </span>
-      <style>{`.infodot:hover + .infotip, .infodot:focus + .infotip { display: block; }`}</style>
+      <style>{`
+        .infotip { display: none; }
+        .infodot:hover + .infotip,
+        .infodot:focus + .infotip { display: block; }
+      `}</style>
     </span>
   );
 }

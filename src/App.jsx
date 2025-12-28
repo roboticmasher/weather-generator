@@ -270,6 +270,13 @@ export default function OverlayTuner() {
   const [showChecker, setShowChecker] = useState(true);
   const [exportBg, setExportBg] = useState("transparent");
 
+  const vp9Mime = "video/webm;codecs=vp9";
+  const alphaOk =
+    typeof MediaRecorder !== "undefined" &&
+    typeof MediaRecorder.isTypeSupported === "function" &&
+    MediaRecorder.isTypeSupported(vp9Mime);
+
+
   const [rain, setRain] = useState({
     density1080: 1200,
     angleDeg: 18,
@@ -679,12 +686,6 @@ export default function OverlayTuner() {
     color: "#e5e7eb",
     background: "rgba(255,255,255,0.06)",
   };
-
-  const vp9 = "video/webm;codecs=vp9";
-  const alphaOk =
-    typeof MediaRecorder !== "undefined" &&
-    typeof MediaRecorder.isTypeSupported === "function" &&
-    MediaRecorder.isTypeSupported(vp9Mime);
 
   const pad = { padding: 14 };
 

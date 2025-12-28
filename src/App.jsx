@@ -34,7 +34,9 @@ function downloadBlob(filename, blob) {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  URL.revokeObjectURL(url);
+
+  // delay revoke so the download has time to start
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 
 function fmt(n, d = 0) {
@@ -594,32 +596,14 @@ export default function OverlayTuner() {
       }
     };
 
-    const waitNext = (targetMs) =>
-      new Promise((resolve) => {
-        const el = document.createElement("video");
-        const hasRVFC = typeof el.requestVideoFrameCallback === "function";
-        if (!hasRVFC) return setTimeout(resolve, targetMs);
-        el.muted = true;
-        el.playsInline = true;
-        el.srcObject = stream;
-        el.onloadedmetadata = () => {
-          el.play().catch(() => {});
-          el.requestVideoFrameCallback(() => {
-            try {
-              el.pause();
-              el.srcObject = null;
-            } catch {}
-            resolve();
-          });
-        };
-      });
+    const waitNext = () => new Promise(requestAnimationFrame);
 
     rec.start(250);
 
     for (let f = 0; f < totalFrames; f++) {
       const t = (f / totalFrames) * T;
       renderFrameAt(t);
-      await waitNext(0);
+      await waitNext();
     }
 
     // Create the promise FIRST so we can't miss the stop event
@@ -633,8 +617,15 @@ export default function OverlayTuner() {
     rec.stop();
 
     const blob = await stopPromise;
-    downloadBlob(`${tab}_preview.webm`, blob);
 
+    console.log("export blob:", blob.type, blob.size);
+
+    if (!blob.size) {
+      alert("Export produced an empty file. Try Black/Checker background or another browser.");
+      return;
+    }
+
+    downloadBlob(`${tab}_preview.webm`, blob);
   }
 
   const previewPct = clamp(previewScale, 0.25, 1);

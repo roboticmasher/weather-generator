@@ -505,10 +505,48 @@ export default function OverlayTuner() {
     const octx = outCanvas.getContext("2d", { alpha: true });
 
     const stream = outCanvas.captureStream(fps);
-    const mimeCandidates = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"];
-    const mime = mimeCandidates.find((m) => MediaRecorder.isTypeSupported(m)) || "video/webm";
+
+    // For true alpha exports, we must use VP9. VP8/WebM will generally drop alpha.
+    const vp9 = "video/webm;codecs=vp9";
+    const vp8 = "video/webm;codecs=vp8";
+    const webm = "video/webm";
+
+    let mime = vp9;
+
+    if (exportBg === "transparent") {
+      if (!MediaRecorder.isTypeSupported(vp9)) {
+        alert(
+          "Your browser can’t export alpha WebM (VP9) via MediaRecorder.\n\n" +
+            "Switch Export Background to Black/Checker, or use the Python offline export for reliable alpha."
+        );
+        return;
+      }
+      mime = vp9; // hard lock
+    } else {
+      // Non-alpha exports can fall back safely
+      const vp9 = "video/webm;codecs=vp9";
+      const vp8 = "video/webm;codecs=vp8";
+      const webm = "video/webm";
+
+      let mime = vp9;
+
+      if (exportBg === "transparent") {
+        if (!MediaRecorder.isTypeSupported(vp9)) {
+          alert(
+            "Your browser can’t export alpha WebM (VP9) via MediaRecorder.\n\n" +
+              "Switch Export Background to Black/Checker, or use the Python offline export for reliable alpha."
+          );
+          return;
+        }
+        mime = vp9; // hard lock
+      } else {
+        const mimeCandidates = [vp9, vp8, webm];
+        mime = mimeCandidates.find((m) => MediaRecorder.isTypeSupported(m)) || webm;
+      }
+    }
 
     const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 6000000 });
+
 
     const chunks = [];
     rec.ondataavailable = (e) => {
@@ -647,6 +685,18 @@ export default function OverlayTuner() {
     border: "1px solid #262630",
     borderRadius: 16,
   };
+
+  const badge = {
+    marginLeft: 8,
+    padding: "2px 6px",
+    borderRadius: 999,
+    fontSize: 11,
+    lineHeight: "14px",
+    border: "1px solid #3a3a49",
+    color: "#e5e7eb",
+    background: "rgba(255,255,255,0.06)",
+  };
+
 
   const pad = { padding: 14 };
 
@@ -818,10 +868,22 @@ export default function OverlayTuner() {
                 <div style={{ marginLeft: "auto", display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                   <span style={{ color: "#a1a1aa", fontSize: 12 }}>Export Background</span>
                   <select style={select} value={exportBg} onChange={(e) => setExportBg(e.target.value)}>
-                    <option value="transparent">Transparent</option>
+                    <option value="transparent">Transparent (VP9 alpha)</option>
                     <option value="black">Black</option>
                     <option value="checker">Checker</option>
                   </select>
+                  {exportBg === "transparent" && <span style={badge}>VP9 alpha</span>}
+                  const vp9 = "video/webm;codecs=vp9";
+                  const alphaOk =
+                    typeof MediaRecorder !== "undefined" &&
+                    MediaRecorder.isTypeSupported?.(vp9);
+
+                  {exportBg === "transparent" && !alphaOk && (
+                    <div style={{ fontSize: 12, color: "#fca5a5", marginTop: 6 }}>
+                      Alpha export requires VP9 WebM. This browser can’t record alpha. Use Black/Checker
+                      or the Python offline export for true alpha.
+                    </div>
+                  )}
                 </div>
               </div>
 

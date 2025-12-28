@@ -622,13 +622,19 @@ export default function OverlayTuner() {
       await waitNext(0);
     }
 
-    rec.stop();
-
-    const blob = await new Promise((resolve) => {
+    // Create the promise FIRST so we can't miss the stop event
+    const stopPromise = new Promise((resolve) => {
       rec.onstop = () => resolve(new Blob(chunks, { type: mime }));
     });
 
+    // Optional: flush last buffered data (helps some browsers)
+    try { rec.requestData?.(); } catch {}
+
+    rec.stop();
+
+    const blob = await stopPromise;
     downloadBlob(`${tab}_preview.webm`, blob);
+
   }
 
   const previewPct = clamp(previewScale, 0.25, 1);

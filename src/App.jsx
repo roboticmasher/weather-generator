@@ -149,33 +149,71 @@ function makeCheckerDataUrl(tile = 24) {
 }
 
 function InfoDot({ text }) {
-  const [pos, setPos] = React.useState(null);
-  const ref = React.useRef(null);
+  const ref = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ x: 0, y: 0, above: false });
+
+  const place = () => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+
+    // Prefer below, but flip above if near bottom of viewport
+    const tipH = 88; // rough tooltip height; fine for flip logic
+    const spaceBelow = window.innerHeight - r.bottom;
+    const above = spaceBelow < tipH + 12;
+
+    setPos({
+      x: r.left + r.width / 2,
+      y: above ? r.top - 8 : r.bottom + 8,
+      above,
+    });
+  };
+
+  const show = () => {
+    place();
+    setOpen(true);
+  };
+
+  const hide = () => setOpen(false);
 
   return (
     <>
       <span
         ref={ref}
         className="infodot"
-        onMouseEnter={() => {
-          const r = ref.current.getBoundingClientRect();
-          setPos({
-            x: r.left + r.width / 2,
-            y: r.bottom + 6,
-          });
+        tabIndex={0}
+        onMouseEnter={show}
+        onMouseLeave={hide}
+        onFocus={show}
+        onBlur={hide}
+        style={{
+          marginLeft: 8,
+          height: 18,
+          width: 18,
+          borderRadius: 999,
+          border: "1px solid #3a3a49",
+          color: "#e5e7eb",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          lineHeight: "12px",
+          cursor: "default",
+          userSelect: "none",
         }}
-        onMouseLeave={() => setPos(null)}
+        aria-label="info"
       >
         i
       </span>
 
-      {pos && (
+      {open && (
         <div
           style={{
             position: "fixed",
             left: pos.x,
             top: pos.y,
-            transform: "translateX(-50%)",
+            transform: `translate(-50%, ${pos.above ? "-100%" : "0"})`,
             background: "#ffffff",
             color: "#000000",
             border: "1px solid #d4d4d8",
@@ -188,6 +226,7 @@ function InfoDot({ text }) {
             boxShadow: "0 12px 30px rgba(0,0,0,0.45)",
             zIndex: 999999,
             pointerEvents: "none",
+            whiteSpace: "normal",
           }}
         >
           {text}
@@ -196,6 +235,7 @@ function InfoDot({ text }) {
     </>
   );
 }
+
 
 function LabeledSlider({ label, help, value, setValue, min, max, step = 1, digits = 0 }) {
   return (

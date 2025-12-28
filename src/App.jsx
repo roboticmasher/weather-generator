@@ -149,60 +149,51 @@ function makeCheckerDataUrl(tile = 24) {
 }
 
 function InfoDot({ text }) {
+  const [pos, setPos] = React.useState(null);
+  const ref = React.useRef(null);
+
   return (
-    <span style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+    <>
       <span
+        ref={ref}
         className="infodot"
-        tabIndex={0}
-        style={{
-          marginLeft: 8,
-          height: 18,
-          width: 18,
-          borderRadius: 999,
-          border: "1px solid #3a3a49",
-          color: "#e5e7eb",
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 12,
-          lineHeight: "12px",
-          cursor: "default",
-          userSelect: "none",
+        onMouseEnter={() => {
+          const r = ref.current.getBoundingClientRect();
+          setPos({
+            x: r.left + r.width / 2,
+            y: r.bottom + 6,
+          });
         }}
-        aria-label="info"
+        onMouseLeave={() => setPos(null)}
       >
         i
       </span>
-      <span
-        className="infotip"
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: 24,
-          transform: "translateX(-50%)",
-          background: "#ffffff",
-          color: "#000000",
-          border: "1px solid #d4d4d8",
-          borderRadius: 10,
-          padding: "8px 10px",
-          minWidth: 160,
-          maxWidth: 240,
-          fontSize: 12,
-          lineHeight: 1.35,
-          boxShadow: "0 12px 30px rgba(0,0,0,0.45)",
-          zIndex: 99999,
-          whiteSpace: "normal",
-          pointerEvents: "none",
-        }}
-      >
-        {text}
-      </span>
-      <style>{`
-        .infotip { display: none; }
-        .infodot:hover + .infotip,
-        .infodot:focus + .infotip { display: block; }
-      `}</style>
-    </span>
+
+      {pos && (
+        <div
+          style={{
+            position: "fixed",
+            left: pos.x,
+            top: pos.y,
+            transform: "translateX(-50%)",
+            background: "#ffffff",
+            color: "#000000",
+            border: "1px solid #d4d4d8",
+            borderRadius: 8,
+            padding: "6px 8px",
+            minWidth: 160,
+            maxWidth: 240,
+            fontSize: 12,
+            lineHeight: 1.35,
+            boxShadow: "0 12px 30px rgba(0,0,0,0.45)",
+            zIndex: 999999,
+            pointerEvents: "none",
+          }}
+        >
+          {text}
+        </div>
+      )}
+    </>
   );
 }
 

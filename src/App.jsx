@@ -523,27 +523,10 @@ export default function OverlayTuner() {
       }
       mime = vp9; // hard lock
     } else {
-      // Non-alpha exports can fall back safely
-      const vp9 = "video/webm;codecs=vp9";
-      const vp8 = "video/webm;codecs=vp8";
-      const webm = "video/webm";
-
-      let mime = vp9;
-
-      if (exportBg === "transparent") {
-        if (!MediaRecorder.isTypeSupported(vp9)) {
-          alert(
-            "Your browser can’t export alpha WebM (VP9) via MediaRecorder.\n\n" +
-              "Switch Export Background to Black/Checker, or use the Python offline export for reliable alpha."
-          );
-          return;
-        }
-        mime = vp9; // hard lock
-      } else {
-        const mimeCandidates = [vp9, vp8, webm];
-        mime = mimeCandidates.find((m) => MediaRecorder.isTypeSupported(m)) || webm;
-      }
+      const mimeCandidates = [vp9, vp8, webm];
+      mime = mimeCandidates.find((m) => MediaRecorder.isTypeSupported(m)) || webm;
     }
+  
 
     const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 6000000 });
 
@@ -697,6 +680,11 @@ export default function OverlayTuner() {
     background: "rgba(255,255,255,0.06)",
   };
 
+  const vp9 = "video/webm;codecs=vp9";
+  const alphaOk =
+    typeof MediaRecorder !== "undefined" &&
+    typeof MediaRecorder.isTypeSupported === "function" &&
+    MediaRecorder.isTypeSupported(vp9Mime);
 
   const pad = { padding: 14 };
 
@@ -873,10 +861,6 @@ export default function OverlayTuner() {
                     <option value="checker">Checker</option>
                   </select>
                   {exportBg === "transparent" && <span style={badge}>VP9 alpha</span>}
-                  const vp9 = "video/webm;codecs=vp9";
-                  const alphaOk =
-                    typeof MediaRecorder !== "undefined" &&
-                    MediaRecorder.isTypeSupported?.(vp9);
 
                   {exportBg === "transparent" && !alphaOk && (
                     <div style={{ fontSize: 12, color: "#fca5a5", marginTop: 6 }}>
